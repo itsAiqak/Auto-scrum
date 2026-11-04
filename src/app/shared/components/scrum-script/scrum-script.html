@@ -1,0 +1,32 @@
+<section class="part yesterday">
+  <h3>Yesterday</h3>
+  @if (yesterday().length) {
+    <ul>@for (line of yesterday(); track $index) { <li>{{ line }}</li> }</ul>
+  } @else {
+    <p class="empty">Nothing recorded.</p>
+  }
+  @if (notFinished().length) {
+    <p class="not-finished"><i class="bi bi-arrow-return-right" aria-hidden="true"></i> Planned but not finished: {{ notFinished().join(', ') }}</p>
+  }
+</section>
+
+<section class="part today">
+  <h3>Today</h3>
+  @if (today().length) {
+    <ul>@for (line of today(); track $index) { <li>{{ line }}</li> }</ul>
+  } @else {
+    <p class="empty">Nothing planned yet.</p>
+  }
+</section>
+
+<section class="part blockers" [class.has-blockers]="standup().blockers.length">
+  <h3>Blockers</h3>
+  @if (standup().blockers.length) {
+    <ul>@for (line of standup().blockers; track $index) { <li>{{ line }}</li> }</ul>
+  } @else {
+    <p class="empty">No blockers.</p>
+  }
+  @if (standup().resolvedBlockers.length) {
+    <p class="resolved"><i class="bi bi-check-circle-fill" aria-hidden="true"></i> Resolved since yesterday: {{ standup().resolvedBlockers.join(', ') }}</p>
+  }
+</section>

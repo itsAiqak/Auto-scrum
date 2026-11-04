@@ -1,0 +1,40 @@
+:host { position: sticky; top: 0; height: 100vh; padding: 14px 0 14px 14px; flex: 0 0 auto; }
+.sidebar { width: 220px; height: 100%; border-radius: 26px; padding: 26px 16px 18px; color: #fff; display: flex; flex-direction: column; gap: 26px; overflow-y: auto; scrollbar-width: none;
+  background: linear-gradient(170deg, #4b7ef0 0%, var(--primary) 45%, var(--primary-dark) 100%); box-shadow: 0 16px 36px #3a6ee84d; }
+
+.profile { display: grid; justify-items: center; gap: 6px; text-align: center; }
+.avatar { width: 76px; height: 76px; border-radius: 50%; display: grid; place-items: center; background: #fff; color: var(--primary); font-size: 22px; font-weight: 800; box-shadow: 0 0 0 6px #ffffff33, 0 8px 18px #1f2a4440; margin-bottom: 6px; }
+.name { font-size: 16px; font-weight: 800; }
+.role { background: #fff; color: var(--primary); border-radius: var(--radius-pill); padding: 3px 12px; font-size: 11px; font-weight: 700; }
+
+.nav-list { display: grid; gap: 4px; }
+.nav-item { display: flex; align-items: center; gap: 14px; padding: 11px 14px; border-radius: var(--radius-md); color: #ffffffb3; text-decoration: none; font-size: 14px; font-weight: 700; transition: background .2s, color .2s; }
+.nav-item i { font-size: 18px; width: 20px; text-align: center; }
+.nav-item:hover { background: #ffffff1a; color: #fff; }
+.nav-item.active { background: #ffffff26; color: #fff; }
+.active-dot { width: 7px; height: 7px; margin-left: auto; border-radius: 50%; background: #fff; opacity: 0; }
+.nav-item.active .active-dot { opacity: 1; }
+
+.today-box { margin-top: auto; background: #ffffff1f; border: 1px solid #ffffff33; border-radius: 18px; padding: 14px 16px; font-size: 13px; }
+.today-head { display: flex; justify-content: space-between; align-items: center; font-weight: 800; margin-bottom: 10px; }
+.today-head b { background: #fff; color: var(--primary); border-radius: var(--radius-pill); padding: 2px 9px; font-size: 11px; }
+.today-box ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 7px; }
+.today-box li { display: flex; align-items: center; gap: 8px; color: #ffffffd9; }
+.today-box li b { margin-left: auto; color: #fff; }
+.dot { width: 6px; height: 6px; border-radius: 50%; background: #fff; }
+
+// Log out: a nav item under the today box (at the bottom once the box is hidden).
+.log-out { width: 100%; margin-top: -12px; border: 0; background: transparent; text-align: left; }
+
+@media (max-width: 1000px) {
+  .sidebar { width: 76px; padding: 20px 10px; align-items: center; }
+  .profile .name, .profile .role, .nav-label, .active-dot, .today-box { display: none; }
+  .log-out { margin-top: auto; }
+  .avatar { width: 48px; height: 48px; font-size: 15px; box-shadow: 0 0 0 4px #ffffff33; }
+  .nav-item { padding: 12px; justify-content: center; }
+}
+@media (max-width: 600px) {
+  :host { padding: 8px 0 8px 8px; }
+  .sidebar { width: 58px; border-radius: 20px; }
+  .avatar { width: 40px; height: 40px; font-size: 13px; }
+}

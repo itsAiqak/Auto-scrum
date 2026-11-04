@@ -1,0 +1,56 @@
+<div class="page-shell">
+  <app-sidebar />
+  <main class="page-content">
+    <app-topbar />
+
+    <section class="stats" aria-label="Standup summary">
+      <div class="stat surface">
+        <div class="ring" [style.--value]="submittedPercent()"><span>{{ submittedPercent() }}%</span></div>
+        <div><b>{{ standup.stats().submitted }}/{{ standup.stats().members }}</b><small>Submitted</small></div>
+      </div>
+      <div class="stat surface">
+        <span class="stat-icon"><i class="bi bi-git" aria-hidden="true"></i></span>
+        <div><b>{{ standup.stats().commits }}</b><small>Commits yesterday</small></div>
+      </div>
+      <div class="stat surface">
+        <span class="stat-icon"><i class="bi bi-folder2-open" aria-hidden="true"></i></span>
+        <div><b>{{ standup.stats().repos }}</b><small>Repos touched</small></div>
+      </div>
+      <div class="stat surface" [class.alert]="standup.stats().blocked > 0">
+        <span class="stat-icon"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i></span>
+        <div><b>{{ standup.stats().blocked }}</b><small>Blocked</small></div>
+      </div>
+    </section>
+
+    <section class="panel surface" aria-labelledby="standup-heading">
+      <div class="panel-head">
+        <div class="title-block">
+          <h2 id="standup-heading">Team Board · {{ standup.selectedDate() | date: 'EEEE, d MMM y' }}</h2>
+          <p>"Yesterday" comes from commits pushed on {{ standup.yesterdayDate() | date: 'EEE, d MMM' }} · dummy data for now</p>
+        </div>
+        <div class="controls">
+          <div class="segmented" role="group" aria-label="Filter by team">
+            @for (team of standup.teams; track team) {
+              <button [class.active]="standup.selectedTeam() === team" [attr.aria-pressed]="standup.selectedTeam() === team" (click)="standup.selectedTeam.set(team)">{{ team }}</button>
+            }
+          </div>
+          <div class="date-nav" role="group" aria-label="Choose standup day">
+            <button class="icon-btn" (click)="standup.previousDay()" [disabled]="!standup.canGoBack()" aria-label="Previous workday"><i class="bi bi-chevron-left" aria-hidden="true"></i></button>
+            <span class="date-label">{{ standup.selectedDate() | date: 'EEE, d MMM' }}</span>
+            <button class="icon-btn" (click)="standup.nextDay()" [disabled]="!standup.canGoForward()" aria-label="Next workday"><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+            <button class="btn btn-soft" (click)="standup.goToLatest()" [disabled]="standup.isLatest()">Today</button>
+          </div>
+          <button class="btn btn-primary" (click)="teamScrum.open()" [disabled]="!standup.board().length"><i class="bi bi-play-circle-fill" aria-hidden="true"></i> Start Team Scrum</button>
+        </div>
+      </div>
+
+      <div class="board">
+        @for (entry of standup.board(); track entry.member.id) {
+          <app-standup-card [standup]="entry" />
+        }
+      </div>
+    </section>
+  </main>
+</div>
+
+<app-team-scrum-dialog #teamScrum />

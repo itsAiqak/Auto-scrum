@@ -1,0 +1,31 @@
+<aside class="sidebar" aria-label="Main navigation">
+  <div class="profile">
+    <span class="avatar" [attr.aria-label]="'Signed in as ' + me.name">{{ me.initials }}</span>
+    <strong class="name">{{ me.name }}</strong>
+    <span class="role">{{ me.role }}</span>
+  </div>
+
+  <nav class="nav-list">
+    @for (item of navigationItems; track item.id) {
+      <a class="nav-item" [routerLink]="item.route" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" [title]="item.label">
+        <i class="bi" [class]="item.icon" aria-hidden="true"></i>
+        <span class="nav-label">{{ item.label }}</span>
+        <span class="active-dot" aria-hidden="true"></span>
+      </a>
+    }
+  </nav>
+
+  <section class="today-box" aria-label="Today's standup">
+    <div class="today-head"><span>Today's standup</span><b>{{ today().submitted }}/{{ today().total }}</b></div>
+    <ul>
+      <li><span class="dot"></span> Submitted <b>{{ today().submitted }}</b></li>
+      <li><span class="dot"></span> Pending <b>{{ today().pending }}</b></li>
+      <li><span class="dot"></span> Blocked <b>{{ today().blocked }}</b></li>
+    </ul>
+  </section>
+
+  <button class="nav-item log-out" type="button" (click)="auth.logOut()" title="Log out">
+    <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+    <span class="nav-label">Log out</span>
+  </button>
+</aside>

@@ -1,0 +1,29 @@
+<dialog #dialog class="dialog dialog-shell" (close)="onClosed()" aria-labelledby="scrum-title">
+  <header class="dialog-head">
+    <span class="avatar" [style.background]="standup.me.avatarColor">{{ standup.me.initials }}</span>
+    <div class="who">
+      <h2 id="scrum-title">{{ standup.me.name }}'s scrum</h2>
+      <p>
+        {{ mine().date | date: 'EEEE, d MMM y' }}
+        @if (liveTurn()) { · <span class="live-tag"><span class="live-dot"></span> Live, the team is listening</span> } @else { · practice run }
+      </p>
+    </div>
+    <span class="countdown" [class]="timer().state" role="timer" aria-label="Time left">
+      <i class="bi bi-stopwatch" aria-hidden="true"></i>
+      @if (timer().state === 'over') { <small>Time's up</small> }
+      {{ timer().label }}
+    </span>
+    <button class="close" (click)="close()" aria-label="Close"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+  </header>
+  <div class="time-bar" [class]="timer().state"><span [style.width.%]="timer().percentLeft"></span></div>
+
+  <app-scrum-script class="script" [standup]="mine()" />
+
+  <footer class="dialog-foot">
+    <span class="hint">{{ timer().state === 'over' ? "Time's up, wrap it up!" : targetSeconds() + ' seconds each. Keep it short and punctual.' }}</span>
+    <button class="done-button" (click)="finish()">
+      <i class="bi" [class]="liveTurn() ? 'bi-arrow-right-circle' : 'bi-check2-circle'" aria-hidden="true"></i>
+      {{ liveTurn() ? 'Done, hand over' : 'Finish' }}
+    </button>
+  </footer>
+</dialog>

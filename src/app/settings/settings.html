@@ -1,0 +1,15 @@
+<div class="page-shell">
+  <app-sidebar />
+  <main class="page-content">
+    <app-topbar />
+    <section class="panel surface" aria-labelledby="settings-heading">
+      <div class="title-block"><h2 id="settings-heading">Settings</h2><p>Shape your Auto-Scrum workspace.</p></div>
+      <div class="settings-form">
+        <label><span>Workspace name</span><input value="Auto Scrum" /></label>
+        <label><span>Daily standup time</span><input type="time" [value]="standup.standupTime()" (change)="setTime($event)" /></label>
+        <label class="checkbox-label"><input type="checkbox" checked /><span>Email notifications</span></label>
+        <button class="btn btn-primary">Save changes</button>
+      </div>
+    </section>
+  </main>
+</div>

@@ -1,0 +1,31 @@
+@if (rows().length) {
+  <div class="timeline" role="group" aria-label="Pushes per branch over the last 14 days">
+    <div class="row header" aria-hidden="true">
+      @for (day of days(); track day.iso; let i = $index) {
+        <span class="day" [class.weekend]="day.weekend" [class.today]="day.today" [style.grid-column]="i + 2"><b>{{ day.weekday }}</b>{{ day.day }}</span>
+      }
+    </div>
+    @for (row of rows(); track row.branch.repo + '/' + row.branch.branch) {
+      <div class="row">
+        <span class="label"><b>{{ row.branch.branch }}</b><small>{{ row.branch.repo }}</small></span>
+        @for (day of days(); track day.iso; let i = $index) {
+          <span class="cell" [class.weekend]="day.weekend" [class.today]="day.today" [style.grid-column]="i + 2"></span>
+        }
+        @if (row.last > row.first) {
+          <span class="lane" [style.grid-column]="row.first + 2 + ' / ' + (row.last + 3)" [style.--span]="row.last - row.first + 1"></span>
+        }
+        @for (commits of row.cells; track $index) {
+          @if (commits.length) {
+            <button type="button" class="dot" [class.many]="commits.length > 1" [style.grid-column]="$index + 2"
+              [title]="describe(row.branch, $index, commits)" [attr.aria-label]="describe(row.branch, $index, commits)" (click)="open.emit(row.branch)">
+              {{ commits.length > 1 ? commits.length : '' }}
+            </button>
+          }
+        }
+      </div>
+    }
+  </div>
+  <p class="legend"><span class="sample" aria-hidden="true"></span> A day with pushes; the number is how many commits. Hover for messages, click for details.</p>
+} @else {
+  <p class="empty">No pushes in the last 14 days.</p>
+}

@@ -1,0 +1,79 @@
+<article class="standup-card" [class.blocked]="isBlocked()">
+  <header class="card-head">
+    <span class="avatar" [style.background]="standup().member.avatarColor">{{ standup().member.initials }}</span>
+    <div class="who"><h3>{{ standup().member.name }}</h3><p>{{ standup().member.role }}</p></div>
+    @if (isBlocked()) { <span class="pill pill-danger"><i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i> Blocked</span> }
+    @else if (!standup().submittedAt) { <span class="pill pill-warning">Not submitted</span> }
+    @else { <span class="pill pill-success"><i class="bi bi-check-lg" aria-hidden="true"></i> {{ standup().submittedAt }}</span> }
+  </header>
+
+  <section class="block">
+    <div class="block-title">
+      <h4><i class="bi bi-clock-history" aria-hidden="true"></i> Yesterday</h4>
+      <small>{{ standup().yesterdayDate | date: 'EEE, d MMM' }} · {{ commitCount() }} {{ commitCount() === 1 ? 'commit' : 'commits' }}</small>
+    </div>
+    @if (standup().yesterday.length) {
+      <ul class="work-list">
+        @for (item of standup().yesterday; track item.repo + item.branch) {
+          <li>
+            <span class="work-summary">{{ item.summary }}</span>
+            <span class="work-meta"><i class="bi bi-git" aria-hidden="true"></i> {{ item.repo }} · {{ item.branch }}@if (item.commits.length > 1) { · +{{ item.commits.length - 1 }} more }</span>
+            @if (showCommits()) {
+              <ol class="commit-list">
+                @for (commit of item.commits; track commit.sha) {
+                  <li><code>{{ commit.sha }}</code><span class="commit-msg">{{ commit.message }}</span><time>{{ commit.timestamp.slice(11) }}</time></li>
+                }
+              </ol>
+            }
+          </li>
+        }
+      </ul>
+      <button class="link-button" (click)="showCommits.set(!showCommits())">
+        <i class="bi" [class]="showCommits() ? 'bi-chevron-up' : 'bi-chevron-down'" aria-hidden="true"></i>
+        {{ showCommits() ? 'Hide commits' : 'Show commits' }}
+      </button>
+    } @else if (!standup().notes.length) {
+      <p class="empty">No commits pushed.</p>
+    }
+    @if (standup().notes.length) {
+      <ul class="note-list">
+        @for (note of standup().notes; track $index) { <li><i class="bi bi-pencil" aria-hidden="true"></i> {{ note }}</li> }
+      </ul>
+    }
+    @if (standup().planReview.length) {
+      <div class="plan-review">
+        <span class="plan-score"><i class="bi bi-list-check" aria-hidden="true"></i> Plan {{ planDone() }}/{{ standup().planReview.length }} done</span>
+        @for (item of standup().planReview; track $index) {
+          @if (!item.done) { <span class="not-done"><i class="bi bi-x-circle" aria-hidden="true"></i> {{ item.text }}</span> }
+        }
+      </div>
+    }
+  </section>
+
+  <section class="block">
+    <div class="block-title"><h4><i class="bi bi-bullseye" aria-hidden="true"></i> Today</h4></div>
+    @if (standup().today.length) {
+      <ul class="plan-list">
+        @for (item of standup().today; track item.text) {
+          <li>{{ item.text }}
+            @if (item.source === 'suggested') { <span class="tag" title="Suggested from git activity">from git</span> }
+            @if (item.source === 'carried') { <span class="tag carried" title="Not finished yesterday">carried over</span> }
+          </li>
+        }
+      </ul>
+    } @else {
+      <p class="empty">No plan written yet.</p>
+    }
+  </section>
+
+  <section class="block">
+    <div class="block-title"><h4><i class="bi bi-cone-striped" aria-hidden="true"></i> Blockers</h4></div>
+    @if (isBlocked()) {
+      <ul class="blocker-list">
+        @for (blocker of standup().blockers; track blocker) { <li>{{ blocker }}</li> }
+      </ul>
+    } @else {
+      <p class="empty">None</p>
+    }
+  </section>
+</article>

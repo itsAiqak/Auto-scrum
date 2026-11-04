@@ -1,0 +1,19 @@
+<article class="branch-card" [class.fresh]="pushedToday()">
+  <header class="head">
+    <h3><i class="bi bi-git" aria-hidden="true"></i><button type="button" class="open" (click)="open.emit()" [attr.aria-label]="branch().branch + ': see all commits'">{{ branch().branch }}</button></h3>
+    <span class="pill pill-neutral repo">{{ branch().repo }}</span>
+  </header>
+  <p class="pushed">
+    <span class="dot" aria-hidden="true"></span>{{ pushed() }}
+    · {{ branch().commits.length }} {{ branch().commits.length === 1 ? 'commit' : 'commits' }}
+  </p>
+  <ol class="commits">
+    @for (commit of preview(); track commit.sha) {
+      <li>
+        <time [attr.datetime]="commit.timestamp">{{ commit.timestamp | date: (isToday(commit.timestamp) ? 'HH:mm' : 'd MMM') }}</time>
+        <span class="message">{{ commit.message }}</span>
+      </li>
+    }
+  </ol>
+  <p class="foot">{{ more() ? 'View all ' + branch().commits.length : 'Details' }} <i class="bi bi-arrow-right" aria-hidden="true"></i></p>
+</article>

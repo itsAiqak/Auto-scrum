@@ -1,0 +1,79 @@
+<div class="shell">
+  <app-sidebar />
+  <main class="workspace">
+    <app-topbar subtitle="Yesterday from your commits, today from your plan">
+      <!-- No Submit button for now: Finish in the scrum dialog records the standup. -->
+      <button class="icon-btn" (click)="copyForChat()" [title]="copied() ? 'Copied!' : 'Copy for Slack / Teams'" [attr.aria-label]="copied() ? 'Copied' : 'Copy standup for Slack or Teams'">
+        <i class="bi" [class]="copied() ? 'bi-clipboard-check-fill' : 'bi-clipboard'" aria-hidden="true"></i>
+      </button>
+      <button class="btn btn-primary" [class.your-turn]="live.isMyTurn() && live.waiting()" (click)="startScrum()">
+        <i class="bi bi-play-circle-fill" aria-hidden="true"></i> {{ live.isMyTurn() && live.waiting() ? 'Start my turn' : 'Start Scrum' }}
+      </button>
+    </app-topbar>
+
+    <section class="panel surface" aria-label="My standup">
+      @for (blocker of standup.pendingBlockers(); track blocker) {
+        <div class="carry-blocker" role="group" aria-label="Yesterday's blocker">
+          <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+          <span>Yesterday you were blocked by <b>{{ blocker }}</b>. Still blocked?</span>
+          <button class="btn btn-ghost" (click)="standup.keepBlocker(blocker)"><i class="bi bi-arrow-repeat" aria-hidden="true"></i> Yes, keep it</button>
+          <button class="btn btn-soft resolved" (click)="standup.resolveBlocker(blocker)"><i class="bi bi-check-lg" aria-hidden="true"></i> Resolved</button>
+        </div>
+      }
+
+      @if (live.isLive()) {
+        <div class="live-banner" [class.mine]="live.isMyTurn()" role="status">
+          <span class="live-dot" aria-hidden="true"></span>
+          @if (live.isMyTurn() && live.waiting()) {
+            <span><b>It's your turn!</b> The team is waiting. Press <b>Start my turn</b> to begin your {{ live.session()!.speakingSeconds }}s.</span>
+          } @else if (live.isMyTurn()) {
+            <span><b>You're speaking</b>, and the team can see your countdown.</span>
+          } @else {
+            <span>
+              <b>Team scrum is live.</b>
+              {{ live.currentMember()?.name }} is {{ live.waiting() ? 'about to start' : 'speaking' }}.
+              @if (live.myPosition()) { You're #{{ live.myPosition() }} of {{ live.session()!.order.length }}. }
+            </span>
+          }
+        </div>
+      }
+
+      <div class="note-grid">
+        <app-standup-note-card title="Yesterday" accent="tertiary" icon="bi-clock-history" [meta]="yesterday().meta" [groups]="yesterday().groups" [chips]="yesterday().chips"
+          emptyText="No commits pushed. Add what you worked on." (add)="edit('notes')" (edit)="edit('notes')" />
+        <app-standup-note-card title="Today" accent="blue" icon="bi-list-check" [meta]="today().meta" [items]="today().items" [chips]="today().chips"
+          emptyText="Nothing planned yet. Tap + to add." [actionLabel]="suggestionLabel()" (action)="standup.addAllSuggestions()" (add)="edit('today')" (edit)="edit('today')" />
+        <app-standup-note-card title="Blockers" [icon]="blockers().items.length ? 'bi-sign-stop' : 'bi-shield-check'" [accent]="blockers().items.length ? 'red' : 'blue'" [meta]="blockers().meta" [items]="blockers().items" [chips]="blockers().chips"
+          emptyText="No blockers." (add)="edit('blockers')" (edit)="edit('blockers')" />
+      </div>
+
+      <div class="team-strip">
+        <div class="avatar-row">
+          @for (entry of standup.teamStatus(); track entry.member.id) {
+            <span class="mini-avatar" [class.ready]="entry.submittedAt" tabindex="0"
+              [attr.data-name]="entry.member.name + (entry.submittedAt ? ' · ' + entry.submittedAt : ' · pending')"
+              [attr.aria-label]="entry.member.name + (entry.submittedAt ? ' submitted at ' + entry.submittedAt : ' pending')">{{ entry.member.initials }}</span>
+          }
+        </div>
+        <span><b>{{ submittedCount() }}/{{ standup.teamStatus().length }}</b> teammates submitted</span>
+        <a routerLink="/standup">View team board <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+      </div>
+    </section>
+
+    <div class="side-by-side">
+    <section class="panel surface" aria-labelledby="work-heading">
+      <app-my-work />
+    </section>
+
+    <section class="panel surface" aria-labelledby="history-heading">
+      <div class="panel-head">
+        <div class="title-block"><h2 id="history-heading">Looking Back</h2><p>Your last two weeks, from your saved plans and pushes: what you planned, what got done, and blockers</p></div>
+      </div>
+      <app-looking-back />
+    </section>
+    </div>
+  </main>
+</div>
+
+<app-edit-dialog />
+<app-scrum-dialog />

@@ -1,0 +1,46 @@
+.dialog { width: min(540px, calc(100vw - 32px)); }
+.dialog-body { padding: 24px 26px; }
+
+.dialog-head { display: flex; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+h2 { margin: 0; color: var(--accent); font-size: 22px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+.accent-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 18%, transparent); }
+.dialog-head p { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
+.close { width: 36px; height: 36px; flex: 0 0 36px; border: 1px solid var(--border); border-radius: 50%; background: var(--surface); color: var(--muted); }
+
+.group-label { margin: 18px 0 8px; color: var(--muted); font-size: 12px; font-weight: 800; display: flex; gap: 6px; align-items: center; }
+.dialog-head + .group-label { margin-top: 0; }
+// Yesterday's commits from git, under a heading per branch (same as the card).
+.branch-label { margin: 12px 0 6px; color: var(--muted); font-size: 11px; font-weight: 800; overflow-wrap: anywhere; }
+.group-label + .branch-label { margin-top: 0; }
+.item-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.item-list li { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 11px 14px; border-radius: var(--radius-md); background: var(--surface-soft); font-size: 14px; font-weight: 600; }
+.item-list li > span { min-width: 0; overflow-wrap: anywhere; }
+.item-list li.readonly { background: var(--surface); border: 1px dashed var(--border); }
+.item-list li small { color: var(--muted); font-size: 11px; white-space: nowrap; }
+.tag { margin-left: 4px; font-size: 10px; font-weight: 800; color: var(--success); background: var(--success-soft); border-radius: var(--radius-pill); padding: 2px 8px; white-space: nowrap; }
+.tag.carried { color: var(--warning); background: var(--warning-soft); }
+.group-label small { font-weight: 600; }
+.add-all { margin-left: auto; border: 0; background: transparent; color: var(--primary); font-size: 12px; font-weight: 800; padding: 0; }
+.add-all:hover { text-decoration: underline; }
+.item-list li.review { justify-content: flex-start; background: var(--surface); border: 1px solid var(--border); }
+.item-list li.review > span { flex: 1; }
+.item-list li.review.done > span { color: var(--muted); text-decoration: line-through; }
+.check { border: 0; background: transparent; padding: 0; font-size: 18px; color: var(--muted); display: grid; }
+.review.done .check { color: var(--success); }
+.remove { border: 0; background: transparent; color: var(--muted); padding: 2px; }
+.remove:hover { color: var(--danger); }
+.empty { margin: 0; color: var(--muted); font-size: 13px; font-style: italic; }
+
+.suggestions { display: flex; flex-wrap: wrap; gap: 8px; }
+.suggestion { border: 1.5px dashed #b9cbf5; background: var(--primary-soft); color: var(--primary); border-radius: var(--radius-pill); padding: 7px 14px; font-size: 12px; font-weight: 700; text-align: left; display: flex; gap: 6px; align-items: center; }
+.suggestion:hover { background: #dbe6ff; }
+.suggestion.carried { border-color: #efd39a; background: var(--warning-soft); color: var(--warning); }
+.suggestion.carried:hover { background: #ffecc2; }
+
+.add-row { margin-top: 20px; display: flex; gap: 8px; }
+.add-row input { flex: 1; min-width: 0; border: 1px solid var(--border); border-radius: var(--radius-pill); padding: 11px 18px; font-size: 14px; color: var(--text); background: var(--surface-soft); }
+.add-row input:focus { outline: 2px solid #c3d4fb; border-color: var(--primary); background: var(--surface); }
+.add-button { border: 0; border-radius: var(--radius-pill); background: var(--primary-soft); color: var(--primary); padding: 0 20px; font-size: 13px; font-weight: 800; }
+
+.dialog-foot { margin-top: 22px; display: flex; justify-content: flex-end; }
+.done-button { border: 0; border-radius: var(--radius-pill); background: var(--primary); color: #fff; padding: 11px 26px; font-size: 13px; font-weight: 800; box-shadow: 0 6px 16px #3a6ee84d; }

@@ -1,0 +1,108 @@
+<dialog #dialog class="dialog dialog-shell" (close)="onClosed()" (keydown)="onKey($event)" aria-labelledby="team-scrum-title">
+  <header class="dialog-head">
+    <div class="title-block">
+      <h2 id="team-scrum-title">Team scrum</h2>
+      <p>{{ standup.selectedDate() | date: 'EEEE, d MMM y' }} · {{ speakers().length }} people</p>
+    </div>
+    <div class="head-right">
+      <span class="pill pill-primary" aria-label="Total time"><i class="bi bi-clock" aria-hidden="true"></i> {{ formatSeconds(live.totalSeconds()) }}</span>
+      @if (!finished()) {
+        <div class="segmented compact" role="group" aria-label="Speaking time per person">
+          @for (seconds of speakingOptions; track seconds) {
+            <button [class.active]="targetSeconds() === seconds" [attr.aria-pressed]="targetSeconds() === seconds" (click)="live.setSpeakingSeconds(seconds)">{{ seconds }}s</button>
+          }
+        </div>
+        <button class="icon-btn" [class.on]="standup.autoNext()" (click)="standup.autoNext.set(!standup.autoNext())" [attr.aria-pressed]="standup.autoNext()"
+          [title]="standup.autoNext() ? 'Auto-next is on: moves on when time is up' : 'Auto-next is off'" aria-label="Auto-next when time is up"><i class="bi bi-skip-forward-fill" aria-hidden="true"></i></button>
+        <button class="icon-btn" (click)="shuffle()" title="Shuffle order and start again" aria-label="Shuffle order and start again"><i class="bi bi-shuffle" aria-hidden="true"></i></button>
+      }
+      <button class="icon-btn" (click)="close()" aria-label="Close"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+    </div>
+  </header>
+
+  @if (!finished() && current(); as speaker) {
+    <nav class="progress" aria-label="Speakers">
+      @for (s of speakers(); track s.member.id; let i = $index) {
+        <button class="step" [class.active]="i === index()" [class.done]="i < index()" (click)="live.goTo(i)"
+          [style.--member]="s.member.avatarColor" [title]="s.member.name" [attr.aria-current]="i === index() ? 'step' : null">{{ s.member.initials }}</button>
+      }
+    </nav>
+
+    <div class="body">
+      <div class="speaker">
+        <span class="avatar" [style.background]="speaker.member.avatarColor">{{ speaker.member.initials }}</span>
+        <div class="who">
+          <h3>{{ speaker.member.name }}</h3>
+          <p>{{ speaker.member.role }} · {{ index() + 1 }} of {{ speakers().length }}</p>
+        </div>
+        @if (!speaker.submittedAt) { <span class="pill pill-warning">Not submitted</span> }
+        @if (live.waiting()) {
+          <span class="pill pill-primary waiting"><span class="pulse-dot"></span> Waiting for {{ speaker.member.name }} to press Start</span>
+        }
+        <span class="countdown" [class.frozen]="live.waiting()" [class]="timer().state" role="timer" aria-label="Time left">
+          <i class="bi bi-stopwatch" aria-hidden="true"></i>
+          @if (timer().state === 'over') { <small>Time's up</small> }
+          {{ timer().label }}
+        </span>
+        <div class="time-bar" [class]="timer().state"><span [style.width.%]="timer().percentLeft"></span></div>
+        @if (live.waiting() && speaker.member.id !== standup.me.id) {
+          <p class="demo-hint">
+            <i class="bi bi-info-circle" aria-hidden="true"></i> {{ speaker.member.name }} starts from their My Standup page.
+            <button class="link" (click)="live.speakerStart(speaker.member.id)">Start for {{ speaker.member.name }} (demo)</button>
+          </p>
+        }
+      </div>
+      <app-scrum-script [standup]="speaker" />
+    </div>
+
+    <footer class="dialog-foot">
+      <button class="btn btn-ghost" (click)="live.goTo(index() - 1)" [disabled]="index() === 0"><i class="bi bi-arrow-left" aria-hidden="true"></i> Previous</button>
+      @if (movingOnIn(); as seconds) {
+        <span class="up-next moving">Time's up! {{ isLast() ? 'Finishing' : 'Moving on' }} in {{ seconds }}…</span>
+      } @else {
+      <span class="up-next">{{ live.nextMember() ? 'Up next: ' + live.nextMember()!.name : 'Last one' }} <small>· {{ targetSeconds() }}s each{{ standup.autoNext() ? ' · auto-next on' : '' }} · arrow keys work too</small></span>
+      }
+      <button class="btn btn-primary" (click)="live.next()">
+        {{ isLast() ? 'Finish scrum' : 'Next' }} <i class="bi" [class]="isLast() ? 'bi-flag-fill' : 'bi-arrow-right'" aria-hidden="true"></i>
+      </button>
+    </footer>
+  } @else if (finished()) {
+    <div class="body summary">
+      <div class="summary-head">
+        <span class="done-icon"><i class="bi bi-check2-all" aria-hidden="true"></i></span>
+        <div><h3>Scrum done in {{ formatSeconds(live.totalSeconds()) }}</h3><p>{{ speakers().length }} people · about {{ formatSeconds(targetSeconds() * speakers().length) }} planned</p></div>
+      </div>
+
+      <section class="summary-card">
+        <h4>Speaking time <small>({{ onTimeCount() }}/{{ speakers().length }} on time)</small></h4>
+        <ul class="times">
+          @for (s of speakers(); track s.member.id) {
+            <li>
+              <span class="mini-avatar" [style.background]="s.member.avatarColor">{{ s.member.initials }}</span>
+              <span class="name">{{ s.member.name }}</span>
+              <span class="time" [class.over]="spokenBy(s.member.id) > targetSeconds()">{{ formatSeconds(spokenBy(s.member.id)) }}@if (spokenBy(s.member.id) > targetSeconds()) { <small>(+{{ formatSeconds(spokenBy(s.member.id) - targetSeconds()) }} over)</small> }</span>
+            </li>
+          }
+        </ul>
+      </section>
+
+      <section class="summary-card">
+        <h4>Blockers to follow up ({{ blockers().length }})</h4>
+        @if (blockers().length) {
+          <ul class="blocker-list">
+            @for (b of blockers(); track $index) { <li><b>{{ b.member.name }}:</b> {{ b.text }}</li> }
+          </ul>
+        } @else {
+          <p class="empty">No blockers today.</p>
+        }
+      </section>
+    </div>
+
+    <footer class="dialog-foot">
+      <button class="btn btn-ghost" (click)="restart()"><i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i> Run again</button>
+      <button class="btn btn-primary" (click)="close()">Close</button>
+    </footer>
+  } @else {
+    <p class="body empty">No one to show for this team and day.</p>
+  }
+</dialog>

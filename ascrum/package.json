@@ -1,0 +1,97 @@
+{
+  "name": "ascrum",
+  "displayName": "Ascrum",
+  "description": "Sends the commits you push to Auto-Scrum, so the Yesterday part of your standup writes itself.",
+  "version": "0.2.0",
+  "publisher": "antrix",
+  "private": true,
+  "license": "UNLICENSED",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "standup",
+    "scrum",
+    "git"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "extensionDependencies": [
+    "vscode.git"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "ascrum.showPushes",
+        "title": "Show Today's Pushes",
+        "category": "Ascrum"
+      },
+      {
+        "command": "ascrum.sendNow",
+        "title": "Send Waiting Pushes Now",
+        "category": "Ascrum"
+      },
+      {
+        "command": "ascrum.openAutoScrum",
+        "title": "Open Auto-Scrum",
+        "category": "Ascrum"
+      },
+      {
+        "command": "ascrum.setToken",
+        "title": "Set API Token",
+        "category": "Ascrum"
+      },
+      {
+        "command": "ascrum.showLog",
+        "title": "Show Log",
+        "category": "Ascrum"
+      }
+    ],
+    "configuration": {
+      "title": "Ascrum",
+      "properties": {
+        "ascrum.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Send the commits you push to Auto-Scrum."
+        },
+        "ascrum.apiUrl": {
+          "type": "string",
+          "default": "http://localhost:4310/api",
+          "markdownDescription": "Auto-Scrum API. Each push is sent as `POST <apiUrl>/pushes`. The default is the mock API (`npm run mock-api` in auto-scrum)."
+        },
+        "ascrum.appUrl": {
+          "type": "string",
+          "default": "http://localhost:4300",
+          "markdownDescription": "Auto-Scrum web app, opened by **Ascrum: Open Auto-Scrum**."
+        },
+        "ascrum.ignoredRepos": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "Repository names whose pushes are never sent, for example personal projects."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p .",
+    "watch": "tsc -watch -p .",
+    "test": "tsc -p . && node --test test/*.test.mjs",
+    "package": "vsce package --allow-missing-repository --skip-license"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.0",
+    "@types/vscode": "~1.90.0",
+    "@vscode/vsce": "^3.6.0",
+    "typescript": "~5.9.2"
+  }
+}

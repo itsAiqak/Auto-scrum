@@ -1,0 +1,49 @@
+<dialog #dialog class="dialog dialog-shell" (click)="closeOnBackdrop($event)" aria-labelledby="work-title">
+  @if (branch(); as branch) {
+    <div class="dialog-body">
+      <header class="dialog-head">
+        <div>
+          <h2 id="work-title"><i class="bi bi-git" aria-hidden="true"></i> {{ branch.branch }}</h2>
+          <p>{{ branch.repo }}</p>
+        </div>
+        <button class="close" (click)="close()" aria-label="Close"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+      </header>
+
+      <div class="summary">
+        <span class="pill" [class]="pushedToday() ? 'pill-primary' : 'pill-neutral'">{{ pushed() }}</span>
+        <span class="count">{{ branch.commits.length }} {{ branch.commits.length === 1 ? 'commit' : 'commits' }}</span>
+      </div>
+
+      @for (day of days(); track day.date) {
+        <h3 class="day">{{ day.date === standup.latestDate ? 'Today · ' : '' }}{{ day.date | date: 'EEEE, d MMM y' }}</h3>
+        <ol class="commits">
+          @for (commit of day.commits; track commit.sha) {
+            @let author = standup.authorOf(commit);
+            <li class="commit">
+              <time class="time" [attr.datetime]="commit.timestamp">{{ commit.timestamp | date: 'HH:mm' }}</time>
+              <span class="rail" aria-hidden="true"></span>
+              <div class="body">
+                <p class="message">{{ commit.message }}</p>
+                <p class="meta">
+                  <span class="avatar" aria-hidden="true">{{ author.initials }}</span>
+                  <span class="author">{{ author.name }}</span>
+                  <span class="email">{{ author.email }}</span>
+                </p>
+                <p class="meta">
+                  @if (commit.url) {
+                    <a class="sha" [href]="commit.url" target="_blank" rel="noopener" [title]="'Open in ' + hostName(commit.url)">
+                      <code>{{ commit.sha.slice(0, 7) }}</code> {{ hostName(commit.url) }} <i class="bi bi-box-arrow-up-right" aria-hidden="true"></i>
+                    </a>
+                  } @else {
+                    <code>{{ commit.sha.slice(0, 7) }}</code>
+                  }
+                  · {{ commit.filesChanged }} {{ commit.filesChanged === 1 ? 'file' : 'files' }} changed
+                </p>
+              </div>
+            </li>
+          }
+        </ol>
+      }
+    </div>
+  }
+</dialog>

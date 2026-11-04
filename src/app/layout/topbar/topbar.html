@@ -1,0 +1,15 @@
+<header class="topbar surface">
+  <div class="title-block">
+    <h2>{{ greeting }}, {{ me.name }}</h2>
+    <p>{{ today | date: 'EEEE, d MMMM y' }} · {{ subtitle() }}</p>
+  </div>
+  @if (reminder.status() === 'soon' || reminder.status() === 'late') {
+    <a class="reminder pill pill-neutral" [class.late]="reminder.status() === 'late'" routerLink="/dashboard">
+      <i class="bi bi-alarm" aria-hidden="true"></i>
+      {{ reminder.status() === 'late' ? 'Standup started ' + reminder.relative() + ' ago' : 'Standup in ' + reminder.relative() }}
+    </a>
+  }
+  <!-- Page actions (e.g. Copy / Start Scrum on My Standup). -->
+  <div class="actions"><ng-content /></div>
+  <div class="profile-chip"><span class="avatar">{{ me.initials }}</span><span class="profile-name">{{ me.name }}</span></div>
+</header>

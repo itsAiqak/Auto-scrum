@@ -1,0 +1,25 @@
+:host { display: block; min-width: 0; height: 100%; }
+.branch-card { height: 100%; padding: 18px 20px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface-soft); display: flex; flex-direction: column; gap: 10px; position: relative; overflow: hidden; transition: box-shadow .25s, transform .25s; }
+.branch-card:hover { background: var(--surface); box-shadow: var(--shadow); transform: translateY(-2px); }
+
+.head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+h3 { margin: 0; min-width: 0; display: flex; gap: 8px; font-size: 15px; font-weight: 800; }
+h3 > i { color: var(--primary); }
+// Stretched over the whole card, so clicking anywhere opens the commit details.
+.open { all: unset; cursor: pointer; overflow-wrap: anywhere; }
+.open::after { content: ''; position: absolute; inset: 0; }
+.open:focus-visible::after { outline: 2px solid var(--primary); outline-offset: -2px; border-radius: 20px; }
+.repo { flex-shrink: 0; }
+
+// Blue dot when pushed today, grey otherwise.
+.pushed { margin: 0; display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 12px; font-weight: 700; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); opacity: .45; }
+.fresh .dot { opacity: 1; }
+.fresh .pushed { color: var(--primary); }
+.fresh .dot { background: var(--primary); box-shadow: 0 0 0 3px var(--primary-soft); }
+
+.commits { flex: 1; margin: 2px 0 0; padding: 10px 0 0; border-top: 1px solid var(--border); list-style: none; display: grid; align-content: start; gap: 7px; }
+.commits li { display: grid; grid-template-columns: 46px minmax(0, 1fr); gap: 8px; font-size: 13px; }
+time { color: var(--muted); font-size: 12px; font-weight: 800; }
+.message { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.foot { margin: 0; align-self: flex-end; color: var(--primary); font-size: 12px; font-weight: 800; }

@@ -1,0 +1,41 @@
+:host { display: block; min-width: 0; }
+.standup-card { height: 100%; background: var(--surface-soft); border: 1px solid var(--border); border-radius: 20px; padding: 18px; display: grid; align-content: start; gap: 14px; transition: box-shadow .25s, background .25s; }
+.standup-card:hover { background: var(--surface); box-shadow: var(--shadow); }
+.standup-card.blocked { border-color: #f5c4c1; }
+
+.card-head { display: flex; align-items: center; gap: 12px; }
+.avatar { width: 42px; height: 42px; flex: 0 0 42px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-size: 12px; font-weight: 800; box-shadow: 0 0 0 3px #fff, 0 4px 10px #1f2a4426; }
+.who { min-width: 0; flex: 1; }
+h3 { margin: 0; font-size: 16px; font-weight: 800; }
+.who p { margin: 1px 0 0; color: var(--muted); font-size: 12px; }
+
+.block { background: var(--surface); border-radius: var(--radius-md); padding: 12px 14px; }
+.block-title { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 8px; }
+h4 { margin: 0; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; color: var(--primary); display: flex; gap: 6px; align-items: center; }
+.block-title small { color: var(--muted); font-size: 11px; }
+
+ul, ol { margin: 0; padding: 0; list-style: none; }
+.work-list { display: grid; gap: 10px; }
+.work-summary { display: block; font-size: 14px; font-weight: 700; }
+.work-meta { display: block; margin-top: 2px; color: var(--muted); font-size: 11px; overflow-wrap: anywhere; }
+.commit-list { margin-top: 8px; padding-left: 10px; border-left: 2px solid var(--primary-soft); display: grid; gap: 6px; }
+.commit-list li { display: grid; grid-template-columns: auto 1fr auto; gap: 8px; align-items: baseline; font-size: 12px; }
+.commit-list code { color: var(--primary); font-size: 11px; }
+.commit-msg { min-width: 0; overflow-wrap: anywhere; }
+.commit-list time { color: var(--muted); font-size: 11px; }
+
+.plan-list, .blocker-list { display: grid; gap: 6px; font-size: 14px; }
+.plan-list li, .blocker-list li { position: relative; padding-left: 16px; }
+.plan-list li::before { content: ''; position: absolute; left: 2px; top: 7px; width: 6px; height: 6px; border-radius: 50%; background: var(--primary); }
+.blocker-list li { color: var(--danger); font-weight: 600; }
+.blocker-list li::before { content: '!'; position: absolute; left: 3px; font-weight: 800; }
+.tag { margin-left: 4px; font-size: 10px; font-weight: 800; color: var(--success); background: var(--success-soft); border-radius: var(--radius-pill); padding: 2px 8px; white-space: nowrap; }
+.tag.carried { color: var(--warning); background: var(--warning-soft); }
+.plan-review { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border); display: grid; gap: 4px; font-size: 12px; }
+.plan-score { color: var(--primary); font-weight: 800; }
+.not-done { color: var(--warning); font-weight: 600; }
+.note-list { margin-top: 10px; display: grid; gap: 4px; font-size: 13px; color: var(--muted); }
+.note-list i { color: var(--primary); font-size: 11px; margin-right: 4px; }
+
+.empty { margin: 0; color: var(--muted); font-size: 13px; font-style: italic; }
+.link-button { margin-top: 10px; border: 0; background: transparent; padding: 0; color: var(--primary); font-size: 12px; font-weight: 800; display: flex; gap: 6px; align-items: center; }

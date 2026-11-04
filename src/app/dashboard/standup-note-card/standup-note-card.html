@@ -1,0 +1,35 @@
+<article class="note-card" [class]="accent()" appTilt>
+  <i class="bi watermark" [class]="icon()" aria-hidden="true"></i>
+  <header class="card-head">
+    <div class="ring" [style.--value]="count() ? 100 : 0"><span>{{ count() }}</span></div>
+    <div class="head-text"><h3>{{ title() }}</h3><p>{{ meta() }}</p></div>
+  </header>
+
+  @if (groups().length) {
+    @for (group of groups(); track $index) {
+      @if (group.title) { <p class="group-title">{{ group.title }}</p> }
+      <ul class="item-list">
+        @for (item of group.items; track $index) { <li>{{ item }}</li> }
+      </ul>
+    }
+  } @else if (items().length) {
+    <ul class="item-list">
+      @for (item of visibleItems(); track $index) { <li>{{ item }}</li> }
+    </ul>
+    @if (hiddenCount()) { <p class="more">+{{ hiddenCount() }} more</p> }
+  } @else {
+    <p class="empty">{{ emptyText() }}</p>
+    @if (actionLabel()) {
+      <button class="action-btn" (click)="action.emit()"><i class="bi bi-magic" aria-hidden="true"></i> {{ actionLabel() }}</button>
+    }
+  }
+
+  @if (chips().length) {
+    <div class="chip-row">@for (chip of chips(); track chip) { <span class="chip">{{ chip }}</span> }</div>
+  }
+
+  <footer class="card-footer">
+    <button class="add-btn" (click)="add.emit()" [attr.aria-label]="'Add to ' + title()"><i class="bi bi-plus-lg" aria-hidden="true"></i></button>
+    <button class="btn btn-soft" (click)="edit.emit()"><i class="bi bi-pencil" aria-hidden="true"></i> Edit</button>
+  </footer>
+</article>

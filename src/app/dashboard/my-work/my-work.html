@@ -1,0 +1,46 @@
+<div class="panel-head">
+  <div class="title-block"><h2 id="work-heading">My Work</h2><p>Branches you pushed to, newest first</p></div>
+  <div class="actions">
+    @if (pushFeed.connected()) {
+      <span class="pill pill-primary" title="Pushes from the Ascrum VS Code extension show up here as they happen"><i class="bi bi-broadcast" aria-hidden="true"></i> Live from VS Code</span>
+    }
+    <div class="segmented" role="group" aria-label="My Work view">
+      <button [class.active]="view() === 'branches'" [attr.aria-pressed]="view() === 'branches'" (click)="view.set('branches')"><i class="bi bi-grid" aria-hidden="true"></i> Branches</button>
+      <button [class.active]="view() === 'timeline'" [attr.aria-pressed]="view() === 'timeline'" (click)="view.set('timeline')"><i class="bi bi-bar-chart-steps" aria-hidden="true"></i> Timeline</button>
+    </div>
+  </div>
+</div>
+
+@if (repos().length > 1) {
+  <div class="repos" role="group" aria-label="Filter by repository">
+    <button class="chip" [class.active]="!repo()" [attr.aria-pressed]="!repo()" (click)="repo.set(null)">All repos</button>
+    @for (name of repos(); track name) {
+      <button class="chip" [class.active]="repo() === name" [attr.aria-pressed]="repo() === name" (click)="repo.set(name)">{{ name }}</button>
+    }
+  </div>
+}
+
+@if (!standup.myBranches().length) {
+  <div class="empty">
+    <i class="bi bi-cloud-arrow-up" aria-hidden="true"></i>
+    <p><b>No pushes yet.</b> Push from VS Code with the Ascrum extension installed, and your branches show up here.</p>
+    @if (!pushFeed.connected()) { <p class="hint">Can't reach the Auto-Scrum API yet, still trying...</p> }
+  </div>
+} @else if (view() === 'branches') {
+  <div class="grid">
+    @for (branch of shown(); track branch.repo + '/' + branch.branch) {
+      <app-branch-card [branch]="branch" (open)="openBranch(branch)" />
+    } @empty {
+      <p class="hint">No pushes in the last {{ recentDays }} days.</p>
+    }
+  </div>
+  @if (olderCount()) {
+    <button class="btn btn-ghost older" (click)="showOlder.set(!showOlder())">
+      {{ showOlder() ? 'Hide' : 'Show' }} {{ olderCount() }} older {{ olderCount() === 1 ? 'branch' : 'branches' }}
+    </button>
+  }
+} @else {
+  <app-push-timeline [branches]="branches()" (open)="openBranch($event)" />
+}
+
+<app-work-dialog />

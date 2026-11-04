@@ -1,0 +1,44 @@
+:host { display: block; min-height: 100vh; }
+.shell { display: flex; min-height: 100vh; }
+// Fills the screen height so the last panel ends level with the sidebar (both 14px from the bottom).
+.workspace { flex: 1; min-width: 0; min-height: 100vh; padding: 14px 20px; display: flex; flex-direction: column; gap: 18px; }
+.workspace > :last-child { flex: 1; }
+
+.panel { padding: 22px 24px; }
+.panel-head { display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 20px; }
+
+.carry-blocker { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: -4px 0 16px; padding: 10px 12px 10px 16px; border-radius: var(--radius-md); background: var(--surface-soft); border: 1px solid var(--border); color: var(--text); font-size: 13px; }
+.carry-blocker > i { color: var(--danger); }
+.carry-blocker > span { flex: 1; min-width: 200px; }
+.carry-blocker .btn { padding: 7px 14px; font-size: 12px; }
+.carry-blocker .resolved { background: var(--tertiary-soft); color: #0f8f82; }
+.live-banner { display: flex; align-items: center; gap: 10px; margin: -4px 0 18px; padding: 12px 16px; border-radius: var(--radius-md); background: var(--primary-soft); color: var(--primary); font-size: 13px; }
+.live-banner.mine { background: var(--primary); color: #fff; box-shadow: 0 8px 20px #3a6ee84d; font-size: 14px; }
+.live-dot { width: 10px; height: 10px; flex: 0 0 10px; border-radius: 50%; background: var(--danger); box-shadow: 0 0 0 3px #fff; animation: live-pulse 1.2s ease-in-out infinite; }
+@keyframes live-pulse { 50% { opacity: .35; } }
+.btn.your-turn { animation: your-turn 1.2s ease-in-out infinite; }
+@keyframes your-turn { 50% { box-shadow: 0 0 0 8px #3a6ee833; } }
+@media (prefers-reduced-motion: reduce) { .live-dot, .btn.your-turn { animation: none; } }
+.note-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.side-by-side > .panel { display: flex; flex-direction: column; }
+
+.side-by-side { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; align-items: stretch; }
+.team-strip { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 12px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+.team-strip b { color: var(--text); }
+.avatar-row { display: flex; padding-left: 4px; }
+// Overlapping stack: submitted = blue, pending = grey. Name shows on hover.
+.mini-avatar { position: relative; width: 32px; height: 32px; margin-left: -8px; display: grid; place-items: center; border-radius: 50%; border: 2px solid #fff; background: #dfe4ee; color: var(--muted); font-size: 10px; font-weight: 800; cursor: default; transition: transform .2s; }
+.mini-avatar.ready { background: var(--tertiary); color: #fff; }
+.mini-avatar::before { content: attr(data-name); position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translate(-50%, 4px); padding: 4px 10px; border-radius: var(--radius-pill); background: var(--text); color: #fff; font-size: 11px; font-weight: 700; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity .15s, transform .15s; }
+.mini-avatar:hover, .mini-avatar:focus-visible { transform: translateY(-3px); z-index: 1; }
+.mini-avatar:hover::before, .mini-avatar:focus-visible::before { opacity: 1; transform: translate(-50%, 0); }
+.avatar-row + span { margin-left: 8px; }
+.team-strip a { margin-left: auto; color: var(--primary); font-weight: 800; text-decoration: none; }
+
+@media (max-width: 1200px) { .side-by-side { grid-template-columns: 1fr; } }
+@media (max-width: 1000px) { .note-grid { grid-template-columns: 1fr; } }
+@media (max-width: 600px) {
+  .workspace { padding: 8px 10px; }
+  .panel { padding: 18px 16px; }
+  .team-strip a { margin-left: 0; }
+}

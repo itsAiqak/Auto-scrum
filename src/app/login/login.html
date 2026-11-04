@@ -1,0 +1,40 @@
+<main class="login-page">
+  <section class="login-card surface" aria-labelledby="login-title">
+    <div class="brand"><span class="logo"><i class="bi bi-people-fill" aria-hidden="true"></i></span> AutoScrum</div>
+
+    <div>
+      <h1 id="login-title">{{ mode() === 'login' ? 'Welcome back' : 'Create your account' }}</h1>
+      <p class="lead">
+        @if (mode() === 'login') {
+          Log in to see your standup.
+        } @else {
+          Use the email you commit with (<code>git config user.email</code>). Only team members can sign up.
+        }
+      </p>
+    </div>
+
+    <div class="segmented" role="group" aria-label="Log in or create an account">
+      <button type="button" [class.active]="mode() === 'login'" [attr.aria-pressed]="mode() === 'login'" (click)="setMode('login')">Log in</button>
+      <button type="button" [class.active]="mode() === 'signup'" [attr.aria-pressed]="mode() === 'signup'" (click)="setMode('signup')">Create account</button>
+    </div>
+
+    <form (submit)="$event.preventDefault(); submit(email.value, password.value)">
+      <label>Email
+        <input #email type="email" name="email" autocomplete="username" required autofocus />
+      </label>
+      <label>Password
+        <input #password type="password" name="password" required
+          [attr.autocomplete]="mode() === 'login' ? 'current-password' : 'new-password'" [attr.minlength]="mode() === 'signup' ? 8 : null" />
+        @if (mode() === 'signup') { <small>At least 8 characters.</small> }
+      </label>
+
+      @if (error()) {
+        <p class="error" role="alert"><i class="bi bi-exclamation-circle-fill" aria-hidden="true"></i> {{ error() }}</p>
+      }
+
+      <button class="btn btn-primary submit" type="submit" [disabled]="busy()">
+        {{ busy() ? 'Please wait…' : mode() === 'login' ? 'Log in' : 'Create account' }}
+      </button>
+    </form>
+  </section>
+</main>

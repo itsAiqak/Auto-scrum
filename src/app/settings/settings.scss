@@ -1,0 +1,13 @@
+.page-shell { display: flex; min-height: 100vh; }
+// Fills the screen height so the last panel ends level with the sidebar (both 14px from the bottom).
+.page-content { flex: 1; min-width: 0; min-height: 100vh; padding: 14px 20px; display: flex; flex-direction: column; gap: 18px; }
+.page-content > :last-child { flex: 1; }
+.panel { padding: 22px 24px; }
+.settings-form { max-width: 560px; margin-top: 22px; display: grid; gap: 20px; }
+label { display: grid; gap: 8px; color: var(--muted); font-size: 12px; font-weight: 700; }
+input:not([type='checkbox']) { border: 1px solid var(--border); border-radius: var(--radius-pill); padding: 11px 18px; color: var(--text); background: var(--surface-soft); font-size: 14px; }
+input:not([type='checkbox']):focus { outline: 2px solid #c3d4fb; border-color: var(--primary); background: var(--surface); }
+input[type='checkbox'] { width: 18px; height: 18px; accent-color: var(--primary); }
+.checkbox-label { display: flex; align-items: center; gap: 10px; color: var(--text); font-size: 14px; }
+.btn { width: max-content; }
+@media (max-width: 600px) { .page-content { padding: 8px 10px; } .panel { padding: 18px 16px; } }

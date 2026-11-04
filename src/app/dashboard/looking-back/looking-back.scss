@@ -1,0 +1,28 @@
+:host { display: grid; gap: 20px; container-type: inline-size; }
+
+.stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+@container (min-width: 820px) { .stats { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.stat { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 20px; background: var(--surface-soft); border: 1px solid var(--border); }
+.stat b { display: block; font-size: 22px; font-weight: 800; line-height: 1.1; }
+.stat small { color: var(--muted); font-size: 12px; font-weight: 700; }
+.stat .ring { width: 54px; height: 54px; flex-basis: 54px; }
+.stat .ring > span { font-size: 12px; }
+.stat-icon { width: 54px; height: 54px; flex: 0 0 54px; border-radius: 50%; display: grid; place-items: center; background: var(--primary-soft); color: var(--primary); font-size: 20px; box-shadow: inset 0 0 0 5px #fff, 0 6px 14px #1f2a441a; }
+
+.timeline { margin: 0; padding: 0 0 0 8px; list-style: none; display: grid; gap: 4px; border-left: 2px solid var(--border); }
+.day { position: relative; padding: 4px 0 14px 18px; }
+.day-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 14px; }
+.dot { position: absolute; left: -8px; top: 9px; width: 14px; height: 14px; border-radius: 50%; background: var(--tertiary); box-shadow: 0 0 0 4px var(--surface); }
+.dot.late { background: #c5ccd9; }
+.meta { margin-left: auto; color: var(--muted); font-size: 12px; font-weight: 700; }
+.plan { margin: 8px 0 0; padding: 0; list-style: none; display: grid; gap: 5px; font-size: 13px; }
+.plan li { display: flex; align-items: flex-start; gap: 7px; color: var(--text); }
+.plan li i { margin-top: 2px; color: var(--muted); }
+.plan li.done i { color: var(--tertiary); }
+.plan li:not(.done):not(.blocker) { color: var(--muted); }
+.plan li.blocker { color: var(--text); font-weight: 600; }
+.plan li.blocker i { color: var(--danger); }
+.empty { color: var(--muted); font-style: italic; padding-left: 18px; }
+.older { justify-self: start; }
+
+@media (max-width: 600px) { .meta { margin-left: 0; width: 100%; } }

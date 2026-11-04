@@ -1,0 +1,54 @@
+.dialog { width: min(780px, calc(100vw - 32px)); background: var(--bg); }
+
+.dialog-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 18px 26px; background: var(--surface); border-bottom: 1px solid var(--border); }
+.title-block h2 { font-size: 20px; }
+.head-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.segmented.compact button { padding: 5px 10px; font-size: 11px; }
+.icon-btn.on { background: var(--primary); border-color: var(--primary); color: #fff; }
+
+.progress { display: flex; justify-content: center; gap: 8px; padding: 16px 26px 0; flex-wrap: wrap; }
+.step { width: 34px; height: 34px; border-radius: 50%; border: 2px solid transparent; background: var(--surface); color: var(--muted); font-size: 10px; font-weight: 800; box-shadow: 0 2px 6px #1f2a4414; transition: all .2s; }
+.step.done { background: var(--member); color: #fff; opacity: .55; }
+.step.active { background: var(--member); color: #fff; border-color: #fff; box-shadow: 0 0 0 3px var(--primary), 0 6px 14px #1f2a4433; transform: scale(1.12); }
+
+.body { padding: 18px 26px; display: grid; gap: 14px; }
+.time-bar { flex-basis: 100%; }
+.speaker { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; background: var(--surface); border-radius: 20px; padding: 14px 18px; box-shadow: var(--shadow); }
+.avatar { width: 52px; height: 52px; flex: 0 0 52px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-size: 15px; font-weight: 800; box-shadow: 0 0 0 4px #fff, 0 6px 14px #1f2a4433; }
+.who { flex: 1; min-width: 140px; }
+h3 { margin: 0; color: var(--text); font-size: 20px; font-weight: 800; }
+.who p { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
+
+.dialog-foot { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 0 26px 24px; }
+.up-next { color: var(--text); font-size: 13px; font-weight: 700; text-align: center; }
+.up-next small { color: var(--muted); font-weight: 600; }
+.waiting { font-size: 12px; }
+.pulse-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--primary); animation: pulse 1.2s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: .25; transform: scale(.7); } }
+.countdown.frozen { opacity: .6; }
+.demo-hint { flex-basis: 100%; margin: 0; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; color: var(--muted); font-size: 12px; }
+.link { border: 0; background: transparent; padding: 0; color: var(--primary); font-size: 12px; font-weight: 800; text-decoration: underline; }
+.up-next.moving { color: var(--danger); font-weight: 800; }
+
+.summary-head { display: flex; align-items: center; gap: 14px; }
+.done-icon { width: 56px; height: 56px; flex: 0 0 56px; border-radius: 50%; display: grid; place-items: center; background: var(--success); color: #fff; font-size: 26px; box-shadow: inset 0 0 0 5px #ffffff55, 0 8px 18px #22a37a4d; }
+.summary-head p { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
+.summary-card { background: var(--surface); border-radius: 20px; padding: 16px 20px; box-shadow: var(--shadow); }
+h4 { margin: 0 0 10px; color: var(--primary); font-size: 13px; font-weight: 800; }
+ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.times li { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 700; }
+.mini-avatar { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-size: 9px; font-weight: 800; }
+.name { flex: 1; }
+.time { font-variant-numeric: tabular-nums; color: var(--success); }
+.time.over { color: var(--danger); }
+.time small { font-size: 11px; margin-left: 4px; }
+h4 small { color: var(--muted); font-weight: 700; }
+.blocker-list li { padding: 9px 12px; border-radius: var(--radius-sm); background: var(--danger-soft); color: var(--danger); font-size: 14px; font-weight: 600; }
+.empty { margin: 0; color: var(--muted); font-style: italic; }
+
+@media (max-width: 600px) {
+  .dialog-head, .body { padding-left: 16px; padding-right: 16px; }
+  .dialog-foot { padding: 0 16px 16px; flex-wrap: wrap; }
+  .up-next { order: -1; width: 100%; }
+  .dialog-foot .btn { flex: 1; }
+}

@@ -1,0 +1,75 @@
+<dialog #dialog class="dialog dialog-shell" (click)="closeOnBackdrop($event)" (close)="onClosed()" aria-labelledby="edit-title">
+  <div class="dialog-body" [style.--accent]="config().accent">
+    <header class="dialog-head">
+      <div>
+        <h2 id="edit-title"><span class="accent-dot"></span> {{ config().title }}</h2>
+        <p>{{ config().hint }}</p>
+      </div>
+      <button class="close" (click)="close()" aria-label="Close"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+    </header>
+
+    @if (list() === 'notes' && mine().planReview.length) {
+      <p class="group-label"><i class="bi bi-list-check" aria-hidden="true"></i> Your plan for yesterday <small>(ticked automatically from commits, tap to correct)</small></p>
+      <ul class="item-list">
+        @for (item of mine().planReview; track $index) {
+          <li class="review" [class.done]="item.done">
+            <button class="check" (click)="standup.setPlanReviewDone($index, !item.done)" [attr.aria-pressed]="item.done" [attr.aria-label]="(item.done ? 'Mark not done: ' : 'Mark done: ') + item.text">
+              <i class="bi" [class]="item.done ? 'bi-check-circle-fill' : 'bi-circle'" aria-hidden="true"></i>
+            </button>
+            <span>{{ item.text }}</span>
+            <small>{{ item.done ? 'done' : 'not done' }}{{ item.auto ? ' · auto' : '' }}</small>
+          </li>
+        }
+      </ul>
+    }
+
+    @if (list() === 'notes' && mine().yesterday.length) {
+      <p class="group-label"><i class="bi bi-git" aria-hidden="true"></i> From git (automatic)</p>
+      @for (work of mine().yesterday; track work.repo + work.branch) {
+        <p class="branch-label">{{ work.branch }} · {{ work.repo }}</p>
+        <ul class="item-list">
+          @for (commit of work.commits; track commit.sha) {
+            <li class="readonly"><span>{{ summarize(commit.message) }}</span><small>{{ commit.timestamp.slice(11, 16) }}</small></li>
+          }
+        </ul>
+      }
+      <p class="group-label"><i class="bi bi-pencil" aria-hidden="true"></i> Added by you</p>
+    }
+
+    @if (items().length) {
+      <ul class="item-list">
+        @for (item of items(); track $index) {
+          <li>
+            <span>{{ item.text }}
+              @if (item.source === 'suggested') { <span class="tag">from git</span> }
+              @if (item.source === 'carried') { <span class="tag carried">carried over</span> }
+            </span>
+            <button class="remove" (click)="standup.removeItem(list(), $index)" aria-label="Remove"><i class="bi bi-trash3" aria-hidden="true"></i></button>
+          </li>
+        }
+      </ul>
+    } @else {
+      <p class="empty">Nothing added yet.</p>
+    }
+
+    @if (list() === 'today' && standup.mySuggestions().length) {
+      <p class="group-label"><i class="bi bi-magic" aria-hidden="true"></i> Suggestions: unfinished from yesterday, then from git
+        <button class="add-all" (click)="standup.addAllSuggestions()">Add all ({{ standup.mySuggestions().length }})</button>
+      </p>
+      <div class="suggestions">
+        @for (suggestion of standup.mySuggestions(); track suggestion.text) {
+          <button class="suggestion" [class.carried]="suggestion.source === 'carried'" (click)="standup.addItem('today', suggestion.text, suggestion.source)">
+            <i class="bi" [class]="suggestion.source === 'carried' ? 'bi-arrow-return-right' : 'bi-plus-lg'" aria-hidden="true"></i> {{ suggestion.text }}
+          </button>
+        }
+      </div>
+    }
+
+    <div class="add-row">
+      <input #itemInput autofocus [placeholder]="config().placeholder" (keydown.enter)="add(itemInput)" [attr.aria-label]="'Add to ' + config().title" />
+      <button class="add-button" (click)="add(itemInput)">Add</button>
+    </div>
+
+    <footer class="dialog-foot"><button class="done-button" (click)="close()">Done</button></footer>
+  </div>
+</dialog>

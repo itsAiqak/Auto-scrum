@@ -1,0 +1,18 @@
+:host { display: block; }
+.panel-head { display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 18px; }
+.actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+.repos { display: flex; flex-wrap: wrap; gap: 6px; margin: -4px 0 16px; }
+.chip { border: 1px solid var(--border); border-radius: var(--radius-pill); background: var(--surface); color: var(--muted); padding: 5px 12px; font-size: 12px; font-weight: 700; }
+.chip:hover { color: var(--text); }
+.chip.active { border-color: transparent; background: var(--primary-soft); color: var(--primary); }
+
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.older { margin-top: 14px; }
+@media (max-width: 640px) { .grid { grid-template-columns: 1fr; } }
+
+.empty { padding: 34px 20px; border: 1.5px dashed var(--border); border-radius: 20px; text-align: center; color: var(--muted); font-size: 13px; }
+.empty > i { font-size: 30px; color: var(--primary); }
+.empty p { margin: 8px auto 0; max-width: 340px; }
+.empty b { color: var(--text); }
+.hint { margin: 0; color: var(--muted); font-size: 12px; font-style: italic; }

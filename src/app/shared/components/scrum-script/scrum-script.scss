@@ -1,0 +1,14 @@
+:host { display: grid; gap: 14px; }
+.part { --accent: var(--violet); background: var(--surface); border-radius: 20px; padding: 16px 20px 16px 24px; box-shadow: var(--shadow); position: relative; overflow: hidden; }
+.part::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: var(--accent); }
+.part.today { --accent: var(--primary); }
+.part.blockers { --accent: var(--teal); }
+.part.blockers.has-blockers { --accent: var(--danger); }
+h3 { margin: 0 0 8px; font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; font-size: 19px; font-weight: 600; line-height: 1.4; }
+li { overflow-wrap: anywhere; }
+li::marker { color: var(--accent); }
+.empty { margin: 0; font-size: 17px; color: var(--muted); font-style: italic; }
+.not-finished { margin: 10px 0 0; padding: 8px 12px; border-radius: var(--radius-sm); background: var(--warning-soft); color: var(--warning); font-size: 14px; font-weight: 700; }
+.resolved { margin: 10px 0 0; padding: 8px 12px; border-radius: var(--radius-sm); background: var(--success-soft); color: var(--success); font-size: 14px; font-weight: 700; }
+@media (max-width: 560px) { ul { font-size: 17px; } }

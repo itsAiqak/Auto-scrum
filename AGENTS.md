@@ -1,0 +1,77 @@
+# Auto-Scrum: agent guide
+
+Angular app that shows each coder's daily standup automatically. **Yesterday** comes from their git pushes, **Today** is their plan (with git-based suggestions), and **Blockers** are typed in. Coders read it out at the scrum instead of remembering it.
+Backend: **FastAPI**, its own project at `C:/Users/ROG Zephyrus GA40IL/antrix/backend/Auto-scrum-be` (login, pushes, commits, live events, members, plans). **Every page needs a login** (email + password; team members sign up once with one of their git emails). The app still uses **dummy data** for members and for teammates' plans and commits; **my plans are saved in the API** (`/api/plans`), and real pushes come from the **Ascrum** VS Code extension (`ascrum/`) through the API.
+
+## Stack & commands
+- Angular 21: standalone components, **zoneless** (no zone.js), signals, `@if/@for` control flow, SCSS. Vitest for tests. Bootstrap Icons (`bi bi-*`).
+- `npm start` (dev server; port 4300 is used while working), `npx ng build`, `npx ng test --watch=false`
+- API on port 4310: the FastAPI project above (`uv run uvicorn app.main:app --port 4310 --reload` in that folder; tests `uv run pytest`). The Node stand-in (`npm run mock-api`) has no login, so the app no longer works against it.
+- `npm run sample-pushes`: sends demo pushes "from you" (global git identity) for the last 3 workdays to the running API (`scripts/sample-pushes.mjs`; idempotent, `API_URL`/`API_TOKEN` env). Extension: `cd ascrum && npm test`, `npm run package` (.vsix); F5 launch config "Ascrum extension"
+- Windows machine. Use the Bash tool with forward slashes, or PowerShell.
+
+## Structure (src/app)
+| Path | What |
+|---|---|
+| `shared/models/standup.models.ts` | **Data contract** for the backend: Member, Commit (optional `authorName`, `url`), DayPlan, PlanItem, Standup, BranchWork, Suggestion |
+| `core/data/standup.mock.ts` | All dummy data. Dates are **workday offsets** from the latest workday (0 = today), so data never goes stale. The signed-in user (Haiqal) has **no dummy commits** (user request, 2026-11-04): their commits are real pushes only; their dummy plans and suggestions remain |
+| `core/services/standup.service.ts` | Single source of state (signals). Only place to swap mock → HTTP. Holds board state, "me" state, and edit actions. `me` = the logged-in member (`AuthService`), or `MOCK_CURRENT_USER_ID` in unit tests. `connect()` (started in `main.ts` once logged in, never in tests) loads my plans from `GET /api/plans?memberId=` over the dummy ones, then every edit (`updateMyPlan`) PUTs that day's whole plan, one request at a time; retries while the API is down; edits made before loading are replayed on top of the saved plans |
+| `shared/utils/workday.ts` | Local `YYYY-MM-DD` helpers; weekends skipped (Monday's "yesterday" = Friday) |
+| `shared/directives/tilt.directive.ts` | `appTilt`: mouse-follow tilt via CSS vars (plain DOM listeners, no change detection) |
+| `dashboard/` | **My Standup** (route `/dashboard`, default). 3 colourful cards (Yesterday/Today/Blockers) + `my-work` panel (real pushes only: `branch-card` grid with last 3 commits and "Pushed today" freshness, or `push-timeline` swimlanes over 14 days; repo filter chips; "Show older" for branches idle > 14 days; click → `work-dialog`: commit timeline by day with time, message, author, sha + GitLab link, files) + `edit-dialog` + `scrum-dialog` (Start Scrum reading view with timer) |
+| `standup/` | **Team board** (route `/standup`): all members' cards, workday date nav, team filter, stats |
+| `layout/` | Sidebar + topbar, used by every page. Topbar takes a `subtitle` input and projects page actions (`<app-topbar>…buttons…</app-topbar>`); My Standup puts Copy / Start Scrum there instead of a second header (no Submit button for now, user request 2026-11-04: **Finish** in the Start Scrum dialog records today's standup via `service.submit()`, with or without Today items; team labels still say "Submitted") |
+| `tasks/`, `settings/` | Placeholder pages |
+| `login/` | **Login page** (route `/login`): "Log in / Create account" segmented switch, email + password, the API's error shown as is. After success it does a full page load of `next` (`afterLoginUrl`: paths in this app only) |
+| `core/services/auth.service.ts` | `AuthService.member` (logged-in member or null), `check()` (`GET /auth/me`, awaited in `main.ts` before the first page), `logIn`/`signUp` (resolve to an error message or null), `logOut()` (then reloads on `/login`). Guards `loggedInGuard` (parent of every page route, sends to `/login?next=`) and `loggedOutGuard` (login page). The session is an httpOnly cookie set by the API: every API call sends `credentials: 'include'` (EventSource: `withCredentials`) |
+| `core/services/push-feed.service.ts` | Real commits from the API (`PUSH_API_URL`): loads `GET /commits`, then live over SSE `/events`. Started in `main.ts` once logged in (`provideAppInitializer`), not in tests; retries with backoff (5s → 60s) until the API is up. `StandupService.commits` = mock + these |
+| `core/services/recap.service.ts`, `shared/models/recap.models.ts` | Unused leftovers from an early draft |
+
+Outside `src/` (not part of the Angular build):
+
+| Path | What |
+|---|---|
+| `ascrum/` | **Ascrum** VS Code extension (TypeScript, CommonJS, own `package.json`). `src/pushes.ts` detects pushes by diffing `refs/remotes/*` snapshots; commits committed by `git config user.email`, no merges, deduped by sha. `src/outbox.ts` queues and POSTs them (retries when offline). `src/extension.ts` is the VS Code glue (Git extension API, status bar, commands). API contract in `ascrum/README.md` |
+| `../../backend/Auto-scrum-be` (moved out of this repo by the user, 2026-11-04) | **FastAPI** + SQLAlchemy (SQLite by default, `DATABASE_URL` for Postgres). Same push-feed endpoints as the mock API plus `/api/members` and `/api/plans/{memberId}/{date}` (+ `/submit`). Times stored naive UTC, served team-local (`TEAM_TIMEZONE`, default Asia/Kuala_Lumpur). Optional `API_TOKEN` guards writes. First start seeds the 4 app members (it would import `mock-api/commits.json`, but that path no longer resolves since the move). Live events use FastAPI's built-in `EventSourceResponse`. Details in that project's README.md |
+| `mock-api/server.mjs` | Zero-dependency Node server: `POST /api/pushes`, `GET /api/commits` (app `Commit` shape), `GET /api/events` (SSE, new or updated commits). Builds `Commit.url` from the push's `remoteUrl` (`mock-api/links.mjs`; old commits of a repo get links on its next push). Stores `mock-api/commits.json` (gitignored, `DATA_FILE=` to override) |
+
+## Conventions
+- Components: standalone, `ChangeDetectionStrategy.OnPush`, `input()`/`output()`/`computed()`/`viewChild()`, `inject()`. Separate `.html`/`.scss` files.
+- Components never hold data; they read from `StandupService`. My plan edits (Today, Blockers, notes, submit, reviewed) are saved to the API and survive a refresh; without the API running they stay in memory and are saved once it is up.
+- `service.me` is the logged-in member. Logging in or out does a **full page load** on purpose, so services (push feed, plan sync) always start for the right member; don't switch members in memory. Log out is the last item in the sidebar.
+- Dialogs use the native `<dialog>` with `showModal()`. No Angular CDK or Material.
+- **Design base (user-chosen, 2026-09-28):** mostly white, blue secondary, big radii, soft shadows (like a soft analytics dashboard). Rounded blue sidebar panel with profile + labelled nav + "Today's standup" box, white topbar card, white `.surface` panels (radius 22px), soft inner cards (radius 20px), pill buttons, segmented pill controls, progress rings. Font: Nunito. **Don't bring back** the old striped cards or the metal look.
+- Use the tokens and shared classes in `src/styles.scss`: CSS vars (`--primary #3a6ee8`, `--bg`, `--surface`, `--text`, `--muted`, `--success/--warning/--danger`, `--violet`, `--teal`, `--radius-*`, `--shadow`) and global classes `.surface`, `.title-block`, `.btn .btn-primary/.btn-soft/.btn-ghost`, `.icon-btn`, `.segmented`, `.pill .pill-*`, `.ring` (set `--value`, `--ring-color`), `.dialog-shell`. Don't hard-code hex colours in components.
+- **Minimal colour (user request, 2026-09-28):** blue (active) + one tertiary `--tertiary` teal (means **done**: Yesterday card, submitted, merged, on time, done ticks; `.pill-tertiary`) + greys. Red only for real problems (active blocker, late reminder icon). No other accent colours; status pills are `.pill-primary` / `.pill-tertiary` / `.pill-neutral`. Avatars: teal (submitted) / grey (pending), overlapping stack. Note cards have a tinted header strip (no top bar) and a faint corner watermark icon (`icon` input).
+- Match the existing dense one-line SCSS style. The per-component style budget is 8 kB warning / 12 kB error (`angular.json`).
+- "Yesterday" summaries come from the first commit message of each branch group, with the conventional-commit prefix stripped (`summarizeCommit`). Exception: the **Yesterday card on My Standup lists every commit** under a `branch · repo` heading (note card `groups` input, no "+N more"; user request, 2026-11-04), and so does the "From git" part of its edit dialog (with commit times). The team board, scrum view and Slack text still show one line per branch.
+- Tests: `core/services/standup.service.spec.ts`. Run them after service changes.
+
+## Verifying UI
+Headless Edge (`C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe --headless=new --screenshot=...`) works for static shots. For clicks and hover, drive it over CDP with a small Node script (Node 24 has a global `WebSocket`). Headless has a ~500px minimum width, so a 400px shot looks cut off even when the layout is fine.
+
+## Status (keep this updated)
+**Done:** team board, My Standup dashboard, edit dialog, Start Scrum dialog, mouse tilt on My Standup cards (`appTilt`), restyle to the white/blue design base, full-width layout.
+- **Carry over yesterday's plan:** `Standup.planReview` checks the previous plan against commits (`matchesCommits()` keyword match). The owner can correct it (`setPlanReviewDone`) in the Yesterday edit dialog. `mySuggestions` returns `Suggestion[]`, with unfinished items first (source 'carried', "carried over" tag). Shown as a "Plan x/y done" chip, as "Planned but not finished" in the scrum view, and on board cards.
+- **Team scrum mode:** `standup/team-scrum-dialog` ("Start Team Scrum" on /standup). One member at a time, Next/Prev + arrow keys, per-person timer, shuffle, and a summary (times + blockers).
+- **Live scrum session** (`core/services/scrum-session.service.ts`): the scrum master starts Team Scrum and the session goes live; each speaker's countdown **only runs after that coder presses Start Scrum on their own My Standup page** (dashboard shows an "It's your turn" banner; the personal dialog runs in live mode, where "Done, hand over" calls `next()`). Timestamps live in the session, so all screens show the same countdown. Synced across tabs via `localStorage` + the `storage` event (TODO: backend/WebSocket). Only the scrum master's tab (`ownerTab`) auto-advances. Closing the team dialog ends the session. Dummy teammates get a "Start for X (demo)" link. Demo with 2 tabs: /standup + /dashboard. Tests: `scrum-session.service.spec.ts`.
+- Shared pieces: `shared/components/scrum-script` (Yesterday/Today/Blockers reading view, used by both scrum dialogs) and `shared/utils/stopwatch.ts` (`Stopwatch`, `formatSeconds`, `countdown()`). Speaking timers **count down** from `service.speakingSeconds()` (default 30s, team can pick 30/45/60/90 in team scrum; 60s was recommended to the user for most teams). `service.autoNext()` (default on) moves team scrum to the next person 3s after time is up (`AUTO_NEXT_GRACE_SECONDS`). Countdowns turn orange in the last 10s and red with "+overtime" after. Shared `.countdown` and `.time-bar` styles live in `styles.scss`.
+
+- **My Standup prep** (dashboard):
+  - Readiness bar was **removed at the user's request** (component backed up outside the repo). `service.readiness` / `DayPlan.reviewed` still exist but have no UI.
+  - `StandupReminderService`: clock, status none/upcoming/soon/late/done, browser Notification 10 min before if not submitted; the topbar shows a reminder pill on every page when soon or late (the bell toggle for browser notifications was in the removed readiness bar).
+  - "Use N suggestions" / "Add all" call `addAllSuggestions()`.
+  - "Still blocked?" prompt for yesterday's blockers (`pendingBlockers`, `keepBlocker`, `resolveBlocker` → `DayPlan.resolvedBlockers`, shown as "Resolved since yesterday").
+  - Copy for Slack/Teams (`shared/utils/standup-text.ts`).
+  - **Looking Back** (`looking-back`): `myStats` rings + `myHistory` timeline (plan done/not done, blockers, on-time vs late submit). **Real data only** (user request, 2026-11-04): my plans saved in the API (`realPlanDates`: loaded, or edited here) and my Ascrum pushes, never the dummy plans; the last `LOOKING_BACK_WORKDAYS` (10) workdays that have a plan or a push, 5 shown, then "Show N older days". Elsewhere (Yesterday's "Plan x/y done" chip, "Still blocked?", carried-over suggestions) my dummy past plans still apply.
+- **Ascrum extension** (2026-10-30): pushes from VS Code → mock API → app. Real pushes go into Yesterday the next workday, and today they show in My Work (`service.myBranches`, real pushes only; the dummy ticket data `MOCK_ACTIVE_WORK`/`ActiveWork` with progress rings, status and PRs was **removed at the user's request**: ticket progress belongs on the future Tasks page). "Live from VS Code" pill on My Work while connected. Haiqal's mock `gitEmails` includes the real git email so pushes land on My Standup. Commits carry `authorName` (extension 0.2.0+); `service.authorOf()` falls back to member name, then email. Tested with node tests against real git repos (`ascrum/test`), not yet run inside a real VS Code window.
+
+- **FastAPI backend** (2026-11-04): `backend/`, 28 pytest tests (incl. live SSE against real uvicorn); verified end to end with the app and an Ascrum push. On Windows, `--reload` restarts by sending Ctrl+C to the worker, which needs a real console (works in a terminal, not from a detached background shell).
+
+- **Plans saved to the database** (2026-11-04): my plans load from and save to FastAPI `/api/plans` (see `standup.service.ts` above). The API leaves `done` out of plan items while unset (not `null`), matching `done?: boolean`. Verified end to end: items added through the Today and Blockers dialogs land in `day_plans` and come back after a reload.
+
+- **Login** (2026-11-04, user's choice: email + password, sign-up only for team members' git emails, no roles yet): backend `routes/auth.py` (scrypt passwords, httpOnly 30-day session cookie, hashed tokens), reads need a login, members change only their own plan; app `login/` + `AuthService` + guards. Verified end to end in the browser (redirect, refused sign-up, sign-up, log out, wrong password, log in). Not done: password reset, login rate limit.
+
+**Suggested next:** load members from `/api/members`, roles (Team board for scrum master only), member detail page, blocker @mentions.
+
+**Later ideas:** standup reminder, Jira ticket chips from commit messages, copy to Slack, member detail page, blocker follow-up, weekly recap, password reset, Microsoft 365 sign-in, AI commit summaries.

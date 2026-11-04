@@ -1,0 +1,30 @@
+:host { display: block; overflow-x: auto; }
+.timeline { min-width: 520px; }
+
+// Every row is the same grid: branch label + 14 day columns. Children share grid-row 1 so cells, lane and dots overlap.
+.row { display: grid; grid-template-columns: minmax(96px, 150px) repeat(14, minmax(24px, 1fr)); align-items: center; min-height: 46px; }
+.row > * { grid-row: 1; }
+.row + .row:not(.header) { border-top: 1px solid var(--border); }
+.header { min-height: 40px; }
+
+.label { grid-column: 1; min-width: 0; padding-right: 10px; display: grid; }
+.label b { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.label small { color: var(--muted); font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.day, .cell { align-self: stretch; }
+.day { display: grid; place-content: center; justify-items: center; color: var(--muted); font-size: 11px; font-weight: 700; }
+.day b { font-size: 10px; font-weight: 800; opacity: .7; }
+.weekend { background: var(--surface-soft); }
+.today { background: var(--primary-soft); }
+.day.today { color: var(--primary); border-radius: 12px 12px 0 0; }
+
+// Runs from the first to the last day with pushes, centre to centre.
+.lane { height: 3px; border-radius: 2px; background: color-mix(in srgb, var(--primary) 30%, transparent); margin-inline: calc(50% / var(--span)); }
+.dot { justify-self: center; width: 12px; height: 12px; padding: 0; border: 0; border-radius: 50%; background: var(--primary); box-shadow: 0 0 0 3px var(--surface); color: #fff; font-size: 10px; font-weight: 800; line-height: 1; cursor: pointer; transition: transform .15s; }
+.dot.many { width: 21px; height: 21px; }
+.dot:hover { transform: scale(1.2); }
+.dot:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
+
+.legend { margin: 14px 0 0; display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 12px; }
+.sample { width: 10px; height: 10px; flex: 0 0 10px; border-radius: 50%; background: var(--primary); }
+.empty { margin: 0; color: var(--muted); font-size: 13px; font-style: italic; }

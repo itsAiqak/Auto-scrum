@@ -1,0 +1,50 @@
+<div class="stats">
+  <div class="stat">
+    <div class="ring" [style.--value]="stats().onTimePercent" style="--ring-color: var(--tertiary)"><span>{{ stats().onTimePercent }}%</span></div>
+    <div><b>{{ stats().onTime }}/{{ stats().days }}</b><small>Submitted on time</small></div>
+  </div>
+  <div class="stat">
+    <div class="ring" [style.--value]="stats().planPercent"><span>{{ stats().planPercent }}%</span></div>
+    <div><b>{{ stats().planDone }}/{{ stats().planTotal }}</b><small>Plan items done</small></div>
+  </div>
+  <div class="stat">
+    <span class="stat-icon"><i class="bi bi-git" aria-hidden="true"></i></span>
+    <div><b>{{ stats().commitsPerDay }}</b><small>Commits per day</small></div>
+  </div>
+  <div class="stat">
+    <span class="stat-icon"><i class="bi bi-cone-striped" aria-hidden="true"></i></span>
+    <div><b>{{ stats().blockers }}</b><small>Blockers raised</small></div>
+  </div>
+</div>
+
+<ol class="timeline">
+  @for (day of history(); track day.date) {
+    <li class="day">
+      <div class="day-head">
+        <span class="dot" [class.late]="!day.onTime" aria-hidden="true"></span>
+        <b>{{ day.date | date: 'EEE, d MMM' }}</b>
+        @if (day.submittedAt) {
+          <span class="pill" [class]="day.onTime ? 'pill-tertiary' : 'pill-neutral'">{{ day.onTime ? 'On time' : 'Late' }} · {{ day.submittedAt }}</span>
+        } @else {
+          <span class="pill pill-neutral">Not submitted</span>
+        }
+        <span class="meta">{{ day.commitCount }} {{ day.commitCount === 1 ? 'commit' : 'commits' }} · {{ day.plan.length ? 'plan ' + doneCount(day.plan) + '/' + day.plan.length + ' done' : 'no plan' }}</span>
+      </div>
+      <ul class="plan">
+        @for (item of day.plan; track $index) {
+          <li [class.done]="item.done"><i class="bi" [class]="item.done ? 'bi-check-circle-fill' : 'bi-x-circle'" aria-hidden="true"></i> {{ item.text }}</li>
+        }
+        @for (blocker of day.blockers; track $index) {
+          <li class="blocker"><i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i> {{ blocker }}</li>
+        }
+      </ul>
+    </li>
+  } @empty {
+    <li class="empty">Nothing in the last two weeks yet. Your saved plans and pushes show up here.</li>
+  }
+</ol>
+@if (olderCount()) {
+  <button class="btn btn-ghost older" (click)="showOlder.set(!showOlder())">
+    {{ showOlder() ? 'Hide' : 'Show' }} {{ olderCount() }} older {{ olderCount() === 1 ? 'day' : 'days' }}
+  </button>
+}
